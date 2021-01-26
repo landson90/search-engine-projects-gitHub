@@ -1,6 +1,7 @@
 import React, { Component } from 'react';
+import { Link } from 'react-router-dom';
 import { FaGithubAlt, FaPlus, FaSpinner } from 'react-icons/fa'
-import { Container, Form, SubmitButton } from './style';
+import { Container, Form, SubmitButton, List } from './style';
 import Api from "../../services/api";
 export default class Main extends Component {
     state = {
@@ -9,6 +10,22 @@ export default class Main extends Component {
         loading: false,
 
     }
+
+    componentDidMount() {
+      const respositoryItens = localStorage.getItem("@GitHub-Respository");
+
+      if(respositoryItens) {
+        this.setState({repositories: JSON.parse(respositoryItens)});
+      }
+
+    }
+
+    componentDidUpdate(props, prevState) {
+      if(prevState.repositories !== this.state.repositories) {
+        localStorage.setItem("@GitHub-Respository", JSON.stringify(this.state.repositories));
+      }
+    }
+
 
     handleInputChange = e => {
         this.setState({ filterRepository: e.target.value});
@@ -38,7 +55,7 @@ export default class Main extends Component {
     }
 
     render() {
-        const { filterRepository, loading } = this.state
+        const { filterRepository, loading, repositories } = this.state
         return (
 
             <Container>
@@ -63,6 +80,15 @@ export default class Main extends Component {
 
                     </SubmitButton>
                 </Form>
+
+                <List>
+                    { repositories.map( r =>
+                        <li key={r.name}>
+                          <span>{r.name}</span>
+                          <Link to={`/repository/${encodeURIComponent(r.name)}`}>Detalhes</Link>
+                        </li>
+                      )}
+                </List>
             </Container>
         );
     }
